@@ -15,3 +15,6 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+use App\Http\Controllers\RestTestController;
+
+Route::apiResource('rest', RestTestController::class)->names('restTest');
