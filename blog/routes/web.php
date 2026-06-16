@@ -17,4 +17,11 @@ Route::middleware([
 });
 use App\Http\Controllers\RestTestController;
 
+use App\Http\Controllers\DiggingDeeperController;
+
+Route::prefix('digging_deeper')->group(function () {
+    Route::get('collections', [DiggingDeeperController::class, 'collections'])
+        ->name('digging_deeper.collections');
+});
+
 Route::apiResource('rest', RestTestController::class)->names('restTest');
