@@ -6,7 +6,6 @@ use App\Http\Requests\BlogPostUpdateRequest;
 use App\Repositories\BlogCategoryRepository;
 use App\Repositories\BlogPostRepository;
 use Illuminate\Support\Str;
-use Carbon\Carbon;
 
 class PostController extends BaseController
 {
@@ -29,6 +28,9 @@ class PostController extends BaseController
     /**
      * Оновити існуючу статтю в базі даних
      */
+    /**
+     * Оновити існуючу статтю в базі даних
+     */
     public function update(BlogPostUpdateRequest $request, string $id)
     {
         $item = $this->blogPostRepository->getEdit($id);
@@ -37,18 +39,8 @@ class PostController extends BaseController
             return ['message' => "Запис id=[{$id}] не знайдено"];
         }
 
-        $data = $request->all();
-
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['title']);
-        }
-
-        // Якщо статтю публікують вперше — ставимо поточний час через Carbon
-        if (empty($item->published_at) && !empty($data['is_published'])) {
-            $data['published_at'] = Carbon::now();
-        }
-
-        $result = $item->update($data);
+        // Обсервер сам розбереться зі slug та published_at під час виклику update()
+        $result = $item->update($request->all());
 
         if ($result) {
             return [

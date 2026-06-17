@@ -25,49 +25,32 @@ class CategoryController extends BaseController
     }
 
     // 2. Створення нової категорії (Залишається працювати через модель)
-    public function store(BlogCategoryCreateRequest $request)
+    // Створення нової категорії
+    public function store(BlogCategoryCreateRequest $request) 
     {
-        $data = $request->input();
-
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['title']);
-        }
-
-        $item = (new BlogCategory())->create($data); 
+        // Передаємо чистий масив, обсервер сам згенерує slug
+        $item = (new BlogCategory())->create($request->all()); 
 
         if ($item) {
-            return [
-                'success' => true,
-                'message' => 'Успішно збережено'
-            ];
+            return ['success' => true, 'message' => 'Успішно збережено'];
         } else {
             return ['message' => 'Помилка збереження'];
         }
     }
 
-    // 3. Оновлення існуючої категорії через репозиторій
-    public function update(BlogCategoryUpdateRequest $request, string $id)
+    // Оновлення категорії
+    public function update(BlogCategoryUpdateRequest $request, string $id) 
     {
-        // Використовуємо репозиторій для пошуку запису на редагування
         $item = $this->blogCategoryRepository->getEdit($id);
         
         if (empty($item)) {
             return ['message' => "Запис id=[{$id}] не знайдено"];
         }
 
-        $data = $request->all();
-        
-        if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['title']);
-        }
-
-        $result = $item->update($data);
+        $result = $item->update($request->all());
 
         if ($result) {
-            return [
-                'success' => true,
-                'message' => 'Успішно збережено'
-            ];
+            return ['success' => true, 'message' => 'Успішно збережено'];
         } else {
             return ['message' => 'Помилка збереження'];
         }
