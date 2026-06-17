@@ -8,6 +8,9 @@ use Illuminate\Support\Str;
 
 class BlogPostObserver
 {
+    /**
+     * Обробка перед створенням запису.
+     */
     public function creating(BlogPost $blogPost): void
     {
         $this->setPublishedAt($blogPost);
@@ -16,6 +19,9 @@ class BlogPostObserver
         $this->setUser($blogPost);
     }
 
+    /**
+     * Обробка перед оновленням запису.
+     */
     public function updating(BlogPost $blogPost): void
     {
         $this->setPublishedAt($blogPost);
@@ -37,14 +43,20 @@ class BlogPostObserver
         }
     }
 
+    /**
+     * Автоматично заповнюємо content_html
+     */
     protected function setHtml(BlogPost $blogPost): void
     {
         if ($blogPost->isDirty('content_raw')) {
-            // Тут у майбутньому можна підключити Markdown-парсер
+            // У майбутньому тут можна реалізувати парсер Markdown -> HTML
             $blogPost->content_html = $blogPost->content_raw;
         }
     }
 
+    /**
+     * Встановлюємо ID поточного користувача або дефолтного
+     */
     protected function setUser(BlogPost $blogPost): void
     {
         $blogPost->user_id = auth()->id() ?? BlogPost::UNKNOWN_USER;

@@ -7,9 +7,14 @@ use App\Http\Requests\BlogPostUpdateRequest;
 use App\Models\BlogPost;
 use App\Repositories\BlogCategoryRepository;
 use App\Repositories\BlogPostRepository;
+use App\Jobs\BlogPostAfterCreateJob;
+use App\Jobs\BlogPostAfterDeleteJob;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 
 class PostController extends BaseController
 {
+    use DispatchesJobs; // Додаємо трейт для можливості виклику $this->dispatch()
+
     public function __construct(
         private BlogPostRepository $blogPostRepository,
         private BlogCategoryRepository $blogCategoryRepository
@@ -28,6 +33,10 @@ class PostController extends BaseController
         $item = (new BlogPost())->create($data);
 
         if ($item) {
+            // Створюємо завдання та відправляємо його в чергу через трейт
+            $job = new BlogPostAfterCreateJob($item);
+            $this->dispatch($job);
+
             return [
                 'success' => true,
                 'message' => 'Успішно збережено'
@@ -62,6 +71,10 @@ class PostController extends BaseController
         $result = BlogPost::destroy($id);
 
         if ($result) {
+            // Відправляємо завдання в чергу статичним методом dispatch() 
+            // та додаємо штучну затримку виконання на 20 секунд
+            BlogPostAfterDeleteJob::dispatch($id)->delay(20);
+
             return [
                 'success' => true,
                 'message' => "Запис id=[{$id}] успішно видалено (SoftDelete)"

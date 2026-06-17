@@ -20,20 +20,14 @@ class BlogPost extends Model
         'content_raw',
         'is_published',
         'published_at',
-        // 'user_id', // <-- ВИДАЛЕНО ДЛЯ БЕЗПЕКИ
+        // 'user_id', // Видалено з міркувань безпеки
     ];
 
-    /**
-     * Категорія, до якої належить стаття
-     */
     public function category()
     {
         return $this->belongsTo(BlogCategory::class);
     }
 
-    /**
-     * Автор, якому належить стаття
-     */
     public function user()
     {
         return $this->belongsTo(User::class);

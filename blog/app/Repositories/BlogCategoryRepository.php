@@ -49,13 +49,12 @@ class BlogCategoryRepository extends CoreRepository
      */
     public function getAllWithPaginate($perPage = null)
     {
-        $columns = ['id', 'title', 'parent_id'];
+        $columns = ['id', 'title', 'parent_id', 'slug'];
 
-        $result = $this
-            ->startConditions()
+        $result = $this->startConditions()
             ->select($columns)
             ->with([
-                'parentCategory:id,title', // Завантажуємо лише потрібні колонки батька
+                'parentCategory:id,title', // Завантажуємо лише ID та назву батька
             ])
             ->paginate($perPage);
             

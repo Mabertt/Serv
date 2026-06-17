@@ -2,28 +2,50 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class BlogCategoryCreateRequest extends FormRequest
+class BlogPostCreateRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Визначаємо, чи дозволено користувачу робити цей запит.
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
+     * Правила валідації для створення статті.
      */
     public function rules(): array
     {
         return [
-            //
+            'title'       => 'required|min:5|max:200|unique:blog_posts',
+            'slug'        => 'max:200|unique:blog_posts',
+            'content_raw' => 'required|string|min:5|max:10000',
+            'category_id' => 'required|integer|exists:blog_categories,id',
+        ];
+    }
+    
+    /**
+     * Кастомні повідомлення про помилки.
+     */
+    public function messages(): array
+    {
+        return [
+            'title.required'  => 'Введіть заголовок статті',
+            'slug.max'        => 'Максимальна довжина [:max]',
+            'content_raw.min' => 'Мінімальна довжина статті [:min] символів',
+        ];
+    }
+    
+    /**
+     * Кастомні назви атрибутів.
+     */
+    public function attributes(): array
+    {
+        return [
+            'title' => 'Заголовок статті',
         ];
     }
 }
