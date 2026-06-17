@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Api\Blog\Admin;
 
+use App\Http\Requests\BlogPostCreateRequest;
 use App\Http\Requests\BlogPostUpdateRequest;
+use App\Models\BlogPost;
 use App\Repositories\BlogCategoryRepository;
 use App\Repositories\BlogPostRepository;
-use Illuminate\Support\Str;
 
 class PostController extends BaseController
 {
-    // Оголошуємо та впроваджуємо обидва репозиторії через сучасний конструктор PHP
     public function __construct(
         private BlogPostRepository $blogPostRepository,
         private BlogCategoryRepository $blogCategoryRepository
@@ -17,20 +17,26 @@ class PostController extends BaseController
         parent::__construct();
     }
 
-    /**
-     * Відобразити список статей з пагінацією та зв'язками
-     */
     public function index()
     {
         return $this->blogPostRepository->getAllWithPaginate();
     }
 
-    /**
-     * Оновити існуючу статтю в базі даних
-     */
-    /**
-     * Оновити існуючу статтю в базі даних
-     */
+    public function store(BlogPostCreateRequest $request)
+    {
+        $data = $request->input();
+        $item = (new BlogPost())->create($data);
+
+        if ($item) {
+            return [
+                'success' => true,
+                'message' => 'Успішно збережено'
+            ];
+        } else {
+            return ['message' => 'Помилка збереження'];
+        }
+    }
+
     public function update(BlogPostUpdateRequest $request, string $id)
     {
         $item = $this->blogPostRepository->getEdit($id);
@@ -39,7 +45,6 @@ class PostController extends BaseController
             return ['message' => "Запис id=[{$id}] не знайдено"];
         }
 
-        // Обсервер сам розбереться зі slug та published_at під час виклику update()
         $result = $item->update($request->all());
 
         if ($result) {
@@ -49,6 +54,20 @@ class PostController extends BaseController
             ];
         } else {
             return ['message' => 'Помилка збереження'];
+        }
+    }
+
+    public function destroy(string $id)
+    {
+        $result = BlogPost::destroy($id);
+
+        if ($result) {
+            return [
+                'success' => true,
+                'message' => "Запис id=[{$id}] успішно видалено (SoftDelete)"
+            ];
+        } else {
+            return ['message' => 'Помилка видалення запису'];
         }
     }
 }
