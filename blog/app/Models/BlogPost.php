@@ -4,12 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; // <--- 1. ПЕРЕВІР ЦЕЙ IMPORT
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BlogPost extends Model
 {
-    use HasFactory;
-    use SoftDeletes; // <--- 2. ПЕРЕВІР ЦЕЙ РЯДОК ВСЕРЕДИНІ КЛАСУ
+    use HasFactory, SoftDeletes;
 
-    // Твої інші налаштування моделі (наприклад, $fillable), якщо вони там є
+    protected $fillable = [
+        'title',
+        'slug',
+        'category_id',
+        'excerpt',
+        'content_raw',
+        'is_published',
+        'published_at',
+        'user_id',
+    ];
+
+    /**
+     * Категорія, до якої належить стаття
+     */
+    public function category()
+    {
+        return $this->belongsTo(BlogCategory::class);
+    }
+
+    /**
+     * Автор, якому належить стаття
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

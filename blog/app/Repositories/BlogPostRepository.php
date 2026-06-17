@@ -22,6 +22,9 @@ class BlogPostRepository extends CoreRepository
      * Отримати список статей для виводу пагінатором (Оптимізований)
      * * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
+    /**
+     * Отримати список статей з категоріями та авторами
+     */
     public function getAllWithPaginate()
     {
         $columns = [
@@ -35,20 +38,17 @@ class BlogPostRepository extends CoreRepository
         ];
 
         $result = $this->startConditions()
-            ->select($columns) // Оптимізація: не тягнемо контент статті в список
-            ->orderBy('id', 'DESC') // Спочатку нові статті
+            ->select($columns)
+            ->orderBy('id', 'DESC')
+            // Оптимізоване завантаження зв'язаних даних
+            ->with([
+                'category' => function ($query) {
+                    $query->select(['id', 'title']);
+                },
+                'user:id,name', // Короткий синтаксис Laravel для вибірки певних полів
+            ])
             ->paginate(25);
             
         return $result;
-    }
-
-    /**
-     * Отримати модель статті для редагування в адмінці
-     * * @param int|string $id
-     * @return Model|null
-     */
-    public function getEdit($id)
-    {
-        return $this->startConditions()->find($id);
     }
 }

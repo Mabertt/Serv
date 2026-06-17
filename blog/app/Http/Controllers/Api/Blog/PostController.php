@@ -1,52 +1,62 @@
 <?php
 
-namespace App\Http\Controllers\Api\Blog;
+namespace App\Http\Controllers\Api\Blog\Admin;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\BlogPost;
+use App\Http\Requests\BlogPostUpdateRequest;
+use App\Repositories\BlogCategoryRepository;
+use App\Repositories\BlogPostRepository;
+use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class PostController extends BaseController
 {
+    // Оголошуємо та впроваджуємо обидва репозиторії через сучасний конструктор PHP
+    public function __construct(
+        private BlogPostRepository $blogPostRepository,
+        private BlogCategoryRepository $blogCategoryRepository
+    ) {
+        parent::__construct();
+    }
+
     /**
-     * Display a listing of the resource.
+     * Відобразити список статей з пагінацією та зв'язками
      */
     public function index()
     {
-        $items = BlogPost::all();
-
-        return $items;
+        return $this->blogPostRepository->getAllWithPaginate();
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Оновити існуючу статтю в базі даних
      */
-    public function store(Request $request)
+    public function update(BlogPostUpdateRequest $request, string $id)
     {
-        //
-    }
+        $item = $this->blogPostRepository->getEdit($id);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        if (empty($item)) {
+            return ['message' => "Запис id=[{$id}] не знайдено"];
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        $data = $request->all();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['title']);
+        }
+
+        // Якщо статтю публікують вперше — ставимо поточний час через Carbon
+        if (empty($item->published_at) && !empty($data['is_published'])) {
+            $data['published_at'] = Carbon::now();
+        }
+
+        $result = $item->update($data);
+
+        if ($result) {
+            return [
+                'success' => true,
+                'message' => 'Успішно збережено'
+            ];
+        } else {
+            return ['message' => 'Помилка збереження'];
+        }
     }
 }
