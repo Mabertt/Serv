@@ -10,7 +10,7 @@
     >
       
       <template #title-cell="{ row }">
-        <a :href="'/admin/blog/posts/' + row.original.id + '/edit'" class="text-blue-600 hover:underline font-medium">
+        <a :href="'/admin/blog/posts/' + row.original.id + '/'" class="text-blue-600 hover:underline font-medium">
           {{ row.original.title }}
         </a>
       </template>

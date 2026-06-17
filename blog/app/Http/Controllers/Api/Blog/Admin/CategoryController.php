@@ -6,7 +6,9 @@ use App\Http\Requests\BlogCategoryCreateRequest;
 use App\Http\Requests\BlogCategoryUpdateRequest;
 use App\Repositories\BlogCategoryRepository; // <--- Підключаємо репозиторій
 use Illuminate\Support\Str;
+use App\Models\Category;
 use App\Models\BlogCategory;
+use App\Http\Resources\Api\Blog\Admin\CategoryResource;
 
 class CategoryController extends BaseController
 {
@@ -19,9 +21,11 @@ class CategoryController extends BaseController
     // 1. Отримання списку через репозиторій з оптимізованими полями
     public function index()
     {
-        // Замість прямого запиту викликаємо метод репозиторія
-        $paginator = $this->blogCategoryRepository->getAllWithPaginate(5);
-        return $paginator; 
+        // Отримуємо всі категорії
+        $categories = Category::all();
+
+        // Повертаємо через ресурс
+        return CategoryResource::collection($categories);
     }
 
     // 2. Створення нової категорії (Залишається працювати через модель)

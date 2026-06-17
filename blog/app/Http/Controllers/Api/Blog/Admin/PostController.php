@@ -10,6 +10,7 @@ use App\Repositories\BlogPostRepository;
 use App\Jobs\BlogPostAfterCreateJob;
 use App\Jobs\BlogPostAfterDeleteJob;
 use Illuminate\Foundation\Bus\DispatchesJobs;
+use App\Http\Resources\Api\Blog\Admin\PostResource;
 
 class PostController extends BaseController
 {
@@ -24,7 +25,12 @@ class PostController extends BaseController
 
     public function index()
     {
-        return $this->blogPostRepository->getAllWithPaginate();
+        // Отримуємо пагіновані дані (припустимо, 25 на сторінку)
+        $paginator = Post::paginate(25);
+
+        // Обгортаємо пагінацію в API Ресурс
+        // collection автоматично додасть meta та links
+        return PostResource::collection($paginator);
     }
 
     public function store(BlogPostCreateRequest $request)
@@ -47,11 +53,11 @@ class PostController extends BaseController
     }
     public function show($id)
 {
-    // Знаходимо пост за ID разом з автором та категорією
-    $post = \App\Models\Post::with(['user', 'category'])->findOrFail($id);
-    return response()->json($post);
+    // Додай цей рядок для тесту, щоб зрозуміти, чи взагалі метод викликається
+    \Log::info('Запит до API для поста ID: ' . $id);
+    
+    return \App\Models\Post::with(['user', 'category'])->findOrFail($id);
 }
-
     public function update(BlogPostUpdateRequest $request, string $id)
     {
         $item = $this->blogPostRepository->getEdit($id);
