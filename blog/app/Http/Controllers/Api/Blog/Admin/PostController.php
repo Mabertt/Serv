@@ -45,6 +45,12 @@ class PostController extends BaseController
             return ['message' => 'Помилка збереження'];
         }
     }
+    public function show($id)
+{
+    // Знаходимо пост за ID разом з автором та категорією
+    $post = \App\Models\Post::with(['user', 'category'])->findOrFail($id);
+    return response()->json($post);
+}
 
     public function update(BlogPostUpdateRequest $request, string $id)
     {

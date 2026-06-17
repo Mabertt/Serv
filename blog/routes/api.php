@@ -27,4 +27,6 @@ Route::get('process-video', [DiggingDeeperController::class, 'processVideo'])
 
 Route::get('prepare-catalog', [DiggingDeeperController::class, 'prepareCatalog'])
     ->name('digging_deeper.prepareCatalog');
+
+Route::get('/admin/blog/posts/{id}', [App\Http\Controllers\Blog\PostController::class, 'show']);
 });
