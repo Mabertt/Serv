@@ -1,18 +1,23 @@
 <?php
 
+use App\Http\Controllers\Api\Blog\Admin\CategoryController;
+use App\Http\Controllers\Api\Blog\Admin\PostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\Blog\PostController;
 
-Route::group(['prefix' => 'blog'], function () {
-    Route::apiResource('posts', PostController::class)->names('blog.posts');
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
 });
 
-use App\Http\Controllers\Api\Blog\Admin\CategoryController as AdminCategoryController;
+$groupData = [
+    'prefix' => 'admin/blog',
+];
 
-// Група маршрутів для адмін-панелі блогу
-Route::prefix('admin/blog')->group(function () {
-    Route::apiResource('categories', AdminCategoryController::class)
-        ->only(['index', 'store', 'update'])
+Route::group($groupData, function () {
+    Route::apiResource('categories', CategoryController::class)
         ->names('blog.admin.categories');
+
+    Route::apiResource('posts', PostController::class)
+        ->except(['show'])
+        ->names('blog.admin.posts');
 });
