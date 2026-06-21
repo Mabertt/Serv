@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Api\Blog\Admin;
 
 use App\Http\Requests\BlogCategoryCreateRequest;
 use App\Http\Requests\BlogCategoryUpdateRequest;
-use App\Repositories\BlogCategoryRepository; // <--- Підключаємо репозиторій
+use App\Repositories\BlogCategoryRepository;
 use Illuminate\Support\Str;
-use App\Models\Category;
 use App\Models\BlogCategory;
 use App\Http\Resources\Api\Blog\Admin\CategoryResource;
 
@@ -21,18 +20,15 @@ class CategoryController extends BaseController
     // 1. Отримання списку через репозиторій з оптимізованими полями
     public function index()
     {
-        // Отримуємо всі категорії
-        $categories = Category::all();
 
-        // Повертаємо через ресурс
+        $categories = BlogCategory::with('parentCategory')->get();
+
         return CategoryResource::collection($categories);
     }
 
-    // 2. Створення нової категорії (Залишається працювати через модель)
-    // Створення нової категорії
     public function store(BlogCategoryCreateRequest $request) 
     {
-        // Передаємо чистий масив, обсервер сам згенерує slug
+
         $item = (new BlogCategory())->create($request->all()); 
 
         if ($item) {
@@ -42,7 +38,6 @@ class CategoryController extends BaseController
         }
     }
 
-    // Оновлення категорії
     public function update(BlogCategoryUpdateRequest $request, string $id) 
     {
         $item = $this->blogCategoryRepository->getEdit($id);
@@ -58,5 +53,13 @@ class CategoryController extends BaseController
         } else {
             return ['message' => 'Помилка збереження'];
         }
+    }
+
+    public function destroy($id)
+    {
+        $category = BlogCategory::findOrFail($id);
+        $category->delete();
+        
+        return response()->json(['message' => 'Deleted successfully'], 200);
     }
 }

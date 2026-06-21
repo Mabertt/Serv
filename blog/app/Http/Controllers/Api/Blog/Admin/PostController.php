@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Blog\Admin;
 
+use Illuminate\Http\Request; // <-- ДОДАНО ДЛЯ ОБРОБКИ ЗАПИТІВ
 use App\Http\Requests\BlogPostCreateRequest;
 use App\Http\Requests\BlogPostUpdateRequest;
 use App\Models\BlogPost;
@@ -23,13 +24,23 @@ class PostController extends BaseController
         parent::__construct();
     }
 
-    public function index()
+    public function index(Request $request) // <-- ДОДАНО Request $request
     {
-        // Отримуємо пагіновані дані (припустимо, 25 на сторінку)
-        $paginator = Post::paginate(25);
+        // Починаємо формувати запит з eager loading
+        $query = BlogPost::with(['user', 'category']);
+
+        // ЛОГІКА ПОШУКУ: якщо в URL є параметр search, фільтруємо по заголовку
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        // Отримуємо кількість записів на сторінку (за замовчуванням 10, як у вашому Nuxt)
+        $perPage = $request->get('per_page', 10);
+        
+        // Отримуємо пагіновані дані
+        $paginator = $query->paginate($perPage);
 
         // Обгортаємо пагінацію в API Ресурс
-        // collection автоматично додасть meta та links
         return PostResource::collection($paginator);
     }
 
@@ -51,13 +62,14 @@ class PostController extends BaseController
             return ['message' => 'Помилка збереження'];
         }
     }
+
     public function show($id)
-{
-    // Додай цей рядок для тесту, щоб зрозуміти, чи взагалі метод викликається
-    \Log::info('Запит до API для поста ID: ' . $id);
-    
-    return \App\Models\Post::with(['user', 'category'])->findOrFail($id);
-}
+    {
+        // Повертаємо один пост з пов'язаними даними
+        $post = BlogPost::with(['user', 'category'])->findOrFail($id);
+        return new PostResource($post);
+    }
+
     public function update(BlogPostUpdateRequest $request, string $id)
     {
         $item = $this->blogPostRepository->getEdit($id);

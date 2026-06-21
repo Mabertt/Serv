@@ -13,11 +13,20 @@ class PostResource extends JsonResource
             'id'             => $this->id,
             'title'          => $this->title,
             'slug'           => $this->slug,
+            'excerpt'        => $this->excerpt,
+            'content_raw'    => $this->content_raw,
             'is_published'   => (bool) $this->is_published,
-            // Трансформація дати
-            'date_published' => $this->published_at ? \Carbon\Carbon::parse($this->published_at)->format('Y-m-d H:i:s') : null,
+            'published_at'   => $this->published_at ? \Carbon\Carbon::parse($this->published_at)->format('Y-m-d H:i:s') : null,
             'user_id'        => $this->user_id,
+            'user'           => [
+                'id'   => $this->user?->id,
+                'name' => $this->user?->name,
+            ],
             'category_id'    => $this->category_id,
+            'category'       => [
+                'id'    => $this->category?->id,
+                'title' => $this->category?->title,
+            ],
         ];
     }
 }

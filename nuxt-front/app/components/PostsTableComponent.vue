@@ -3,7 +3,7 @@
     <div class="flex justify-center">
       <div class="w-full">
         <nav class="navbar bg-gray-100 p-3 mb-4 rounded shadow-sm">
-          <a href="/admin/blog/posts/create" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Додати</a>
+          <a href="/admin/blog/posts/create" class="text-blue-500 hover:underline">Додати</a>
         </nav>
         <div class="card border border-gray-200 rounded shadow-md bg-white">
           <div class="card-body p-4">
@@ -23,7 +23,9 @@
                   <td class="p-2 border">{{ post.user?.name || 'Невідомий' }}</td>
                   <td class="p-2 border">{{ post.category?.title || 'Без категорії' }}</td>
                   <td class="p-2 border">
-                    <a :href="'/admin/blog/posts/' + post.id + '/edit'" class="text-blue-600 hover:underline">{{ post.title }}</a>
+                    <a :href="'/admin/blog/posts/' + post.id + '/edit'" class="text-blue-600 hover:underline">
+                      {{ post.title }}
+                    </a>
                   </td>
                   <td class="p-2 border">{{ post.published_at || 'Чернетка' }}</td>
                 </tr>
@@ -40,24 +42,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref } from 'vue'
 
-const posts = ref<any[]>([]);
+const config = useRuntimeConfig()
+const backendUrl = config.public.apiBase || 'https://symmetrical-space-guacamole-r4x6r5jjvwvq3r7v-8080.app.github.dev'
+const posts = ref<any[]>([])
 
 const getPosts = () => {
-  // Наша точна адреса бкенду Laravel Sail
-  const backendUrl = 'https://symmetrical-space-guacamole-r4x6r5jjvwvq3r7v-80.app.github.dev';
-
   $fetch<any>(`${backendUrl}/api/admin/blog/posts`)
     .then(response => {
-      console.log('Дані з сервера:', response);
-      // Оскільки Laravel повертає пагіновану структуру, масив постів лежить в .data
-      posts.value = response.data || response;
+      console.log('Дані з сервера:', response)
+      // Беремо масив із response.data, оскільки Laravel повертає пагіновану структуру
+      posts.value = response.data || response
     })
     .catch(error => {
-      console.error('Помилка запиту API:', error);
-    });
-};
+      console.error('Помилка запиту API:', error)
+    })
+}
 
-getPosts();
+getPosts()
 </script>

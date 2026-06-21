@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DiggingDeeperController;
 
-
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
@@ -16,18 +15,18 @@ $groupData = [
 ];
 
 Route::group($groupData, function () {
+    // Маршрути для категорій
     Route::apiResource('categories', CategoryController::class)
         ->names('blog.admin.categories');
 
+    // Маршрути для постів
     Route::apiResource('posts', PostController::class)
-        ->except(['show'])
         ->names('blog.admin.posts');
 
-Route::get('process-video', [DiggingDeeperController::class, 'processVideo'])
-    ->name('digging_deeper.processVideo');
+    // Інші маршрути
+    Route::get('process-video', [DiggingDeeperController::class, 'processVideo'])
+        ->name('digging_deeper.processVideo');
 
-Route::get('prepare-catalog', [DiggingDeeperController::class, 'prepareCatalog'])
-    ->name('digging_deeper.prepareCatalog');
-
-Route::get('/admin/blog/posts/{id}', [PostController::class, 'show']);
+    Route::get('prepare-catalog', [DiggingDeeperController::class, 'prepareCatalog'])
+        ->name('digging_deeper.prepareCatalog');
 });

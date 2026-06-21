@@ -15,11 +15,12 @@ class CategoryResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'parent_id'    => $this->parent_id,
-            'title' => $this->title,
-            'slug'  => $this->slug,
-            'description' => $this->description,
-            // Додай сюди інші поля, якщо вони є в таблиці categories
+            'id'            => $this->id,
+            'parent_id'     => $this->parent_id,
+            'title'         => $this->title,
+            'slug'          => $this->slug,
+            'description'   => $this->description,
+            'parent_title'  => $this->parent?->title,
         ];
     }
 }

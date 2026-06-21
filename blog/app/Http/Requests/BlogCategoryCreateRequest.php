@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BlogPostCreateRequest extends FormRequest
+class BlogCategoryCreateRequest extends FormRequest
 {
     /**
      * Визначаємо, чи дозволено користувачу робити цей запит.
@@ -15,15 +15,17 @@ class BlogPostCreateRequest extends FormRequest
     }
 
     /**
-     * Правила валідації для створення статті.
+     * Правила валідації для створення категорії.
      */
     public function rules(): array
     {
         return [
-            'title'       => 'required|min:5|max:200|unique:blog_posts',
-            'slug'        => 'max:200|unique:blog_posts',
-            'content_raw' => 'required|string|min:5|max:10000',
-            'category_id' => 'required|integer|exists:blog_categories,id',
+            // Назва обов'язкова, мінімум 3 символи (як у Nuxt), має бути унікальною в таблиці blog_categories
+            'title'       => 'required|min:3|max:200|unique:blog_categories,title',
+            // Slug не обов'язковий (бо генерується автоматично), але якщо є — має бути унікальним
+            'slug'        => 'nullable|max:200|unique:blog_categories,slug',
+            // Опис не обов'язковий
+            'description' => 'nullable|string|max:1000',
         ];
     }
     
@@ -33,9 +35,11 @@ class BlogPostCreateRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required'  => 'Введіть заголовок статті',
-            'slug.max'        => 'Максимальна довжина [:max]',
-            'content_raw.min' => 'Мінімальна довжина статті [:min] символів',
+            'title.required' => 'Введіть назву категорії',
+            'title.min'      => 'Назва має містити мінімум [:min] символи',
+            'title.unique'   => 'Категорія з такою назвою вже існує',
+            'slug.max'       => 'Максимальна довжина slug [:max] символів',
+            'slug.unique'    => 'Такий slug вже зайнятий',
         ];
     }
     
@@ -45,7 +49,8 @@ class BlogPostCreateRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'title' => 'Заголовок статті',
+            'title'       => 'Назва категорії',
+            'description' => 'Опис категорії',
         ];
     }
 }
